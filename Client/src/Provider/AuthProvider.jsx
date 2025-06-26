@@ -1,3 +1,5 @@
+// src/Provider/AuthProvider.jsx
+
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -10,13 +12,15 @@ import {
 import AuthContext from './AuthContext';
 import auth from './../Firebase/firebase.init';
 import { useEffect, useState } from 'react';
+import FullPageLoader from '../Components/Custom/FullPageLoader';
+// 1. Import the new loader
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // This `loading` is key!
   const [redirectPath, setRedirectPath] = useState('/');
 
-  // Login section
+  // ... (your existing login, logout, register functions remain the same)
   const logIn = async (email, password) => {
     setLoading(true);
     try {
@@ -25,32 +29,22 @@ const AuthProvider = ({ children }) => {
         email,
         password
       );
-      console.log('User logged in:', userCredential.user);
       return userCredential;
     } catch (error) {
       setLoading(false);
-      console.error('Error during login:', error);
       throw error;
     }
   };
-  // Login section
-
-  // Logout section
   const logOut = async () => {
     setLoading(true);
     try {
       await signOut(auth);
-      console.log('User signed out successfully');
       return true;
     } catch (error) {
-      console.error('Error signing out:', error);
       setLoading(false);
       throw error;
     }
   };
-  // Logout section
-
-  // Register section
   const register = async (email, password, name, photoURL) => {
     setLoading(true);
     try {
@@ -59,48 +53,36 @@ const AuthProvider = ({ children }) => {
         email,
         password
       );
-      console.log('User created:', userCredential.user);
       await updateProfile(userCredential.user, {
         displayName: name,
         photoURL: photoURL,
       });
-      console.log('Profile updated. New user data:', user);
       setLoading(false);
       return userCredential;
     } catch (error) {
       setLoading(false);
-      console.error('Error creating user:', error);
       throw error;
     }
   };
-
-  // Register section
-
-  // Google Login section
   const googleSignIn = async () => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
     return signInWithPopup(auth, provider).finally(() => setLoading(false));
   };
 
-  // Google Login section
-
-  // Magnage User Section
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, currentUser => {
       setUser(currentUser ? { ...currentUser } : null);
-      setLoading(false);
+      setLoading(false); // Firebase is done checking, set loading to false.
     });
     return () => {
-      console.log('Auth state listener unsubscribed');
       unsubscribe();
     };
   }, []);
-  // Magnage User Section
 
   const value = {
     user,
-    loading,
+    loading, // We pass this down so other components can know if auth is loading
     register,
     redirectPath,
     setRedirectPath,
@@ -108,7 +90,15 @@ const AuthProvider = ({ children }) => {
     logOut,
     logIn,
   };
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+
+  // 2. The Magic Trick!
+  // If auth state is loading, show the full-page loader and NOTHING else.
+  // The `children` (your entire app) will not be rendered until loading is false.
+  return (
+    <AuthContext.Provider value={value}>
+      {loading ? <FullPageLoader /> : children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;

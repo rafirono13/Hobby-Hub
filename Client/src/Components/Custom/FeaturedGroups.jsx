@@ -1,61 +1,56 @@
 import React from 'react';
 import { Slide } from 'react-awesome-reveal';
 import { Link } from 'react-router';
-import {
-  FaBook,
-  FaCamera,
-  FaGamepad,
-  FaLeaf,
-  FaPaintBrush,
-  FaPenFancy,
-} from 'react-icons/fa';
-
-const iconMap = {
-  'Drawing & Painting': <FaPaintBrush className="text-xl" />,
-  Photography: <FaCamera className="text-xl" />,
-  'Video Gaming': <FaGamepad className="text-xl" />,
-  Reading: <FaBook className="text-xl" />,
-  Writing: <FaPenFancy className="text-xl" />,
-  Fishing: <FaLeaf className="text-xl" />,
-};
 
 const FeaturedGroups = ({ groups = [] }) => {
   return (
-    <div className="w-11/12 mx-auto my-10">
-      <h2 className="text-3xl font-bold mb-6 text-center">Featured Groups</h2>
+    <div className="w-11/12 mx-auto my-16">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-extrabold">Featured Groups</h2>
+        <p className="text-lg mt-2 text-base-content text-opacity-80">
+          Discover communities that share your passion.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* --- Responsive 4-Column Grid --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
         {groups.map(group => (
           <Slide direction="up" triggerOnce key={group._id}>
-            <div className="bg-base-100 rounded-xl shadow-md shadow-gray-400 overflow-hidden hover:shadow-xl transition">
-              <img
-                src={group.image}
-                alt={group.groupName}
-                className="w-full h-48 object-cover"
-                loading="lazy"
-              />
-              <div className="p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  {iconMap[group.category] || (
-                    <FaLeaf className="text-xl text-gray-400" />
-                  )}
-                  <h3 className="text-xl font-semibold">{group.groupName}</h3>
+            <div className="card bg-base-100 shadow-lg hover:shadow-2xl transition-shadow duration-300 h-full flex flex-col">
+              <figure className="h-52">
+                <img
+                  src={group.image}
+                  alt={group.groupName}
+                  className="w-full h-full object-cover"
+                />
+              </figure>
+
+              {/* Card content with flex-grow to push the button to the bottom */}
+              <div className="card-body p-6 flex flex-col flex-grow">
+                <h2 className="card-title text-2xl font-bold mb-2">
+                  {group.groupName}
+                </h2>
+                <p className="text-base-content text-opacity-70 flex-grow">
+                  {/* Truncating the description to keep cards neat */}
+                  {group.description.length > 90
+                    ? `${group.description.substring(0, 90)}...`
+                    : group.description}
+                </p>
+                <div className="card-actions justify-end mt-4">
+                  {/* The "See More" button now links to the detailed page */}
+                  <Link to={`/groups/${group._id}`}>
+                    <button className="btn btn-primary">See More</button>
+                  </Link>
                 </div>
-                <p className="text-sm text-gray-500">
-                  Location: {group.location}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Start: {new Date(group.startDate).toLocaleDateString()}
-                </p>
               </div>
             </div>
           </Slide>
         ))}
       </div>
 
-      <div className="text-center mt-10">
+      <div className="text-center mt-16">
         <Link to="/groups">
-          <button className="btn btn-outline btn-primary px-8">
+          <button className="btn btn-outline btn-primary btn-wide">
             View All Groups
           </button>
         </Link>

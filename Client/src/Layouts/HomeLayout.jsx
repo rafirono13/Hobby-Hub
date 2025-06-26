@@ -1,8 +1,9 @@
 import React from 'react';
-import { Outlet, useNavigation } from 'react-router';
+import { Outlet, ScrollRestoration, useNavigation } from 'react-router';
 import Navbar from '../Components/Common/Navbar';
 import Footer from '../Components/Common/Footer';
 import Loader from './../Components/Error/Loader';
+import FullPageLoader from '../Components/Custom/FullPageLoader';
 
 const HomeLayout = () => {
   const navigation = useNavigation();
@@ -12,11 +13,16 @@ const HomeLayout = () => {
         <Navbar></Navbar>
       </nav>
       <main className="min-h-screen w-11/12 mx-auto p-5">
-        {navigation.state === 'loading' ? <Loader></Loader> : <Outlet></Outlet>}
+        {navigation.state === 'loading' ? (
+          <FullPageLoader></FullPageLoader>
+        ) : (
+          <Outlet></Outlet>
+        )}
       </main>
       <div>
         <Footer></Footer>
       </div>
+      <ScrollRestoration></ScrollRestoration>
     </div>
   );
 };

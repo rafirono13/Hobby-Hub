@@ -1,16 +1,25 @@
 import { createBrowserRouter } from 'react-router';
 import HomeLayout from '../Layouts/HomeLayout';
-import HomePage from './../Pages/HomePage';
 import AuthLayout from '../Layouts/AuthLayout';
-import NotFound from './../Components/Error/NotFound';
+import PrivateRoute from '../Provider/PrivateRoute';
+
+// Pages
+import HomePage from './../Pages/HomePage';
 import Login from './../Pages/Login';
 import Register from './../Pages/Register';
 import MyGroups from '../Pages/MyGroups';
 import CreateGroup from './../Pages/CreateGroup';
 import AllGroups from './../Pages/AllGroups';
-import PrivateRoute from '../Provider/PrivateRoute';
 import GroupDetails from '../Pages/GroupDetails';
 import UpdateGroup from '../Pages/UpdateGroup';
+
+// Error/Fallback Component
+import NotFound from './../Components/Error/NotFound';
+import AboutUs from '../Components/Custom/AboutUs';
+import Contact from '../Components/Custom/Contact';
+import Support from '../Components/Custom/Support';
+import DashboardLayout from '../Layouts/DashboardLayout';
+import DashboardOverview from '../Pages/DashboardOverview';
 
 const router = createBrowserRouter([
   {
@@ -27,8 +36,13 @@ const router = createBrowserRouter([
         element: <AllGroups />,
       },
       {
+        // This route should be protected if only logged-in users can see details
         path: 'groups/:id',
-        element: <GroupDetails></GroupDetails>,
+        element: (
+          <PrivateRoute>
+            <GroupDetails />
+          </PrivateRoute>
+        ),
       },
       {
         path: 'my-groups',
@@ -47,12 +61,26 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'update/:id',
+        // Renamed from 'update' to be more specific, as per convention
+        path: 'update-group/:id',
         element: (
           <PrivateRoute>
-            <UpdateGroup></UpdateGroup>
+            <UpdateGroup />
           </PrivateRoute>
         ),
+      },
+      // --- New Routes Added Below ---
+      {
+        path: 'about',
+        element: <AboutUs />,
+      },
+      {
+        path: 'contact',
+        element: <Contact />,
+      },
+      {
+        path: 'support',
+        element: <Support />,
       },
     ],
   },
@@ -72,6 +100,34 @@ const router = createBrowserRouter([
     ],
   },
   {
+    path: 'dashboard',
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
+    errorElement: <NotFound />,
+    children: [
+      {
+        index: true,
+        element: <DashboardOverview />,
+      },
+      {
+        path: 'my-groups',
+        element: <MyGroups />,
+      },
+      {
+        path: 'add-group',
+        element: <CreateGroup />,
+      },
+      {
+        path: 'all-groups',
+        element: <AllGroups />,
+      },
+    ],
+  },
+  {
+    // Catch-all 404 route
     path: '*',
     element: <NotFound />,
   },

@@ -1,9 +1,15 @@
+// src/Pages/HomePage.jsx
+
 import React, { useEffect, useState } from 'react';
 import Banner from '../Components/Common/Banner';
 import FeaturedGroups from '../Components/Custom/FeaturedGroups';
 import ArticleSection from '../Components/Custom/ArticleSection';
 import FAQAccordion from '../Components/Custom/FAQAccordion';
 import HomeLoader from '../Components/Custom/HomeLoader';
+import Header from '../Components/Common/Header';
+import CommunitySpotlight from '../Components/Custom/CommunitySpotlight';
+import CreatorsToolkit from '../Components/Custom/CreatorsToolkit';
+import FullPageLoader from '../Components/Custom/FullPageLoader';
 
 const HomePage = () => {
   const [loading, setLoading] = useState(true);
@@ -17,13 +23,9 @@ const HomePage = () => {
           'https://hobby-hub-server-lemon.vercel.app/groupInformation'
         );
         const data = await response.json();
+        const featured = data.slice(0, 4);
 
-        const today = new Date();
-        const upcoming = data
-          .filter(g => new Date(g.startDate) >= today)
-          .slice(0, 6);
-
-        setFeaturedGroups(upcoming);
+        setFeaturedGroups(featured);
         setDataLoaded(true);
 
         setTimeout(() => {
@@ -39,17 +41,20 @@ const HomePage = () => {
   }, []);
 
   if (loading || !dataLoaded) {
-    return <HomeLoader />;
+    return <FullPageLoader />;
   }
 
   return (
     <div>
       <header>
+        <Header />
         <Banner />
       </header>
       <main>
         <FeaturedGroups groups={featuredGroups} />
+        <CreatorsToolkit />
         <ArticleSection />
+        <CommunitySpotlight />
         <FAQAccordion />
       </main>
     </div>
