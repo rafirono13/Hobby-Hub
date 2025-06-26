@@ -12,7 +12,7 @@ const Footer = () => {
     <footer className="footer p-10 bg-base-300 text-base-content w-11/12 mx-auto rounded-t-2xl">
       <aside>
         <Link to="/" className="flex items-center gap-2 text-2xl font-bold">
-          <FaCircleNodes className="text-red-500" />
+          <FaCircleNodes className="text-primary" />
           <span>HobbyHub</span>
         </Link>
         <p className="max-w-xs text-sm">
