@@ -1,10 +1,7 @@
-<div align="center">
-  <img src="https://i.ibb.co/L5T1fK8/logo-placeholder.png" alt="HobbyHub Logo" width="120px" />
   <h1>🎨 HobbyHub – Full-Stack Hobby Group Platform</h1>
   <p>
     <strong>HobbyHub</strong> is a dynamic, full-stack social platform designed to connect people with shared interests. From painting and gaming to book clubs and hiking crews, users can discover, create, and manage local hobby groups with ease.
   </p>
-</div>
 
 🔗 [**Live Site**](https://hobby-hub-1549a.web.app/)
 &nbsp;&nbsp;•&nbsp;&nbsp;
