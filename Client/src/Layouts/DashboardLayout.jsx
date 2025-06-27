@@ -1,5 +1,3 @@
-// src/Layouts/DashboardLayout.jsx
-
 import React from 'react';
 import { NavLink, Outlet, Link } from 'react-router';
 
