@@ -1,8 +1,6 @@
-// src/Pages/MyGroups.jsx
-
 import React, { useEffect, useState } from 'react';
 import useAuth from '../Hooks/useAuth';
-import axios from 'axios'; // 1. Import axios
+import axios from 'axios';
 import {
   FaArrowLeft,
   FaEdit,
@@ -97,7 +95,7 @@ const MyGroups = () => {
           <FaUsers /> My Created Groups
         </h2>
         {createdGroups.length > 0 ? (
-          <div className="overflow-x-auto bg-base-100 rounded-xl shadow-lg">
+          <div className="overflow-x-auto bg-base-100 rounded-xl shadow-lg border-2 border-primary">
             <table className="table w-full">
               <thead>
                 <tr>
@@ -139,13 +137,15 @@ const MyGroups = () => {
         )}
       </div>
 
+      <div className="divider my-10"></div>
+
       {/* Joined Groups Section */}
       <div>
         <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-3">
           <FaUserPlus /> My Joined Groups
         </h2>
         {joinedGroups.length > 0 ? (
-          <div className="overflow-x-auto bg-base-100 rounded-xl shadow-lg">
+          <div className="overflow-x-auto bg-base-100 rounded-xl shadow-lg border-2 border-primary">
             <table className="table w-full">
               <thead>
                 <tr>
