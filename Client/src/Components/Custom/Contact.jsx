@@ -1,7 +1,6 @@
-// src/pages/Contact.jsx
-
-import React from 'react';
+import React, { useState } from 'react';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const Contact = () => {
   return (
@@ -18,11 +17,35 @@ const Contact = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Contact Form */}
           <div className="bg-base-200 p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-6">Send a Message</h2>
-            <form>
-              {/* Form fields remain the same */}
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                const form = e.target;
+                const name = form.name.value;
+                const email = form.email.value;
+                const message = form.message.value;
+                Swal.fire({
+                  title: 'Sending message...',
+                  text: 'Please wait while your message is being sent.',
+                  allowOutsideClick: false,
+                  didOpen: () => {
+                    Swal.showLoading();
+                  },
+                });
+
+                setTimeout(() => {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Message Sent!',
+                    text: 'Thank you for your message. We will get back to you soon!',
+                    confirmButtonText: 'OK',
+                  });
+                  form.reset();
+                }, 2000);
+              }}
+            >
               <div className="form-control mb-4">
                 <label className="label">
                   <span className="label-text">Your Name</span>
@@ -31,6 +54,7 @@ const Contact = () => {
                   type="text"
                   placeholder="Jane Doe"
                   className="input input-bordered w-full"
+                  name="name"
                 />
               </div>
               <div className="form-control mb-4">
@@ -41,6 +65,7 @@ const Contact = () => {
                   type="email"
                   placeholder="jane.doe@example.com"
                   className="input input-bordered w-full"
+                  name="email"
                 />
               </div>
               <div className="form-control mb-6">
@@ -50,6 +75,7 @@ const Contact = () => {
                 <textarea
                   className="textarea textarea-bordered h-32"
                   placeholder="Your message here..."
+                  name="message"
                 ></textarea>
               </div>
               <button type="submit" className="btn btn-primary w-full">

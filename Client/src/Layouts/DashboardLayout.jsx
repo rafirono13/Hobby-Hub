@@ -8,11 +8,9 @@ import {
   FaLayerGroup,
   FaHome,
 } from 'react-icons/fa';
-import useAuth from '../Hooks/useAuth';
 import useTheme from '../Hooks/useTheme';
 
 const DashboardLayout = () => {
-  const { user } = useAuth();
   useTheme();
 
   const navLinks = (
