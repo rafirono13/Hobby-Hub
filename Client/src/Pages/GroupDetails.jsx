@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import Swal from 'sweetalert2';
-import useAuth from '../Hooks/useAuth'; // We need user info to join!
+import useAuth from '../Hooks/useAuth';
+import axios from 'axios';
 import {
   FaMapMarkerAlt,
   FaUserFriends,
@@ -14,9 +15,13 @@ import {
 } from 'react-icons/fa';
 import HomeLoader from '../Components/Custom/HomeLoader';
 
+const api = axios.create({
+  baseURL: 'https://hobby-hub-server-lemon.vercel.app',
+});
+
 const GroupDetails = () => {
   const { id } = useParams();
-  const { user } = useAuth(); // Get the current logged-in user
+  const { user } = useAuth();
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,16 +30,14 @@ const GroupDetails = () => {
   useEffect(() => {
     const fetchGroupDetails = async () => {
       try {
-        const response = await fetch(
-          `https://hobby-hub-server-lemon.vercel.app/groupInformation/${id}`
-        );
-        if (!response.ok) {
-          throw new Error(`Failed to fetch: ${response.statusText}`);
-        }
-        const data = await response.json();
-        setGroup(data);
+        const response = await api.get(`/groupInformation/${id}`);
+        setGroup(response.data);
       } catch (err) {
-        setError(err.message);
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            'Failed to fetch group details.'
+        );
       } finally {
         setLoading(false);
       }
@@ -42,9 +45,16 @@ const GroupDetails = () => {
     fetchGroupDetails();
   }, [id]);
 
-  // --- The Join Group Logic ---
-  const handleJoinGroup = () => {
-    // Check if the user is trying to join their own group
+  const handleJoinGroup = async () => {
+    if (!user) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Not Logged In',
+        text: 'You must be logged in to join a group.',
+      });
+      return;
+    }
+
     if (user?.email === group?.creatorEmail) {
       Swal.fire({
         icon: 'info',
@@ -54,8 +64,7 @@ const GroupDetails = () => {
       return;
     }
 
-    // A simple confirmation popup
-    Swal.fire({
+    const result = await Swal.fire({
       title: 'Confirm Join',
       text: `Are you sure you want to join "${group.groupName}"?`,
       icon: 'question',
@@ -63,20 +72,34 @@ const GroupDetails = () => {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, join it!',
-    }).then(result => {
-      if (result.isConfirmed) {
-        // Here you would typically make an API call to your backend
-        // to register the user for the group.
-        // For now, we'll simulate it with a success message.
-        console.log(`User ${user.email} is joining group ${group._id}`);
+    });
 
+    if (result.isConfirmed) {
+      try {
+        const response = await api.patch(`/groupInformation/${id}/join`, {
+          userEmail: user.email,
+        });
+
+        const data = response.data;
+
+        if (data.message) {
+          Swal.fire('Already a Member', data.message, 'info');
+        } else {
+          Swal.fire(
+            'Joined!',
+            'You have successfully joined the group. Welcome!',
+            'success'
+          );
+        }
+      } catch (err) {
+        console.error('Join group error:', err);
         Swal.fire(
-          'Joined!',
-          'You have successfully joined the group. Welcome!',
-          'success'
+          'Error!',
+          err.response?.data?.message || 'Could not process your request.',
+          'error'
         );
       }
-    });
+    }
   };
 
   if (loading) return <HomeLoader />;
@@ -103,13 +126,10 @@ const GroupDetails = () => {
                 {group.groupName}
               </h1>
             </div>
-
             <div className="prose max-w-none text-base-content text-opacity-80 mb-8">
               <p className="text-lg leading-relaxed">{group.description}</p>
             </div>
-
             <div className="divider"></div>
-
             <div className="bg-base-100 p-6 rounded-2xl shadow-md mb-8">
               <h3 className="text-2xl font-bold mb-4">Fast Facts</h3>
               <ul className="space-y-3">
@@ -133,13 +153,11 @@ const GroupDetails = () => {
                 </li>
               </ul>
             </div>
-
             <div className="text-center mt-10">
               <h3 className="text-2xl font-bold mb-4">
                 Ready to Join the Fun?
               </h3>
               {isJoinable ? (
-                // Attaching the onClick handler to the button!
                 <button
                   onClick={handleJoinGroup}
                   className="btn btn-primary btn-lg shadow-lg hover:shadow-xl transition-shadow duration-300 animate-pulse"
@@ -156,7 +174,6 @@ const GroupDetails = () => {
               )}
             </div>
           </div>
-
           {/* Right Column: Just the Image */}
           <div className="lg:col-span-2">
             <div className="rounded-2xl overflow-hidden shadow-2xl sticky top-24">
