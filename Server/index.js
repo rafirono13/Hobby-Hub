@@ -51,6 +51,39 @@ async function run() {
       res.send(group);
     });
 
+    // New API ENDPOINTS
+
+    // ! JOIN A Group
+    app.patch("/groupInformation/:id/join", async (req, res) => {
+      const groupId = req.params.id;
+      const { userEmail } = req.body;
+
+      if (!userEmail) {
+        return res.status(400).send({ message: "User email is required" });
+      }
+
+      try {
+        const result = await groupInformation.updateOne(
+          { _id: new ObjectId(groupId) },
+          { $addToSet: { members: userEmail } }
+        );
+
+        if (result.modifiedCount === 0 && result.matchedCount === 1) {
+          return res.send({
+            message: "User is already a member of this group.",
+          });
+        }
+        res.send(result);
+      } catch (error) {
+        console.error("Error joining group:", error);
+        res.status(500).send({ message: "Internal server error" });
+      }
+    });
+
+    // ! JOIN A Group
+
+    // New API ENDPOINTS
+
     app.get("/groupInformation/user", async (req, res) => {
       try {
         const email = req.query.email;
