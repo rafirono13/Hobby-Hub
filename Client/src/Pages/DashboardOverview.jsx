@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import useAuth from '../../Hooks/useAuth';
+import axios from 'axios';
 import { FaLayerGroup, FaUsers } from 'react-icons/fa';
-import useAuth from '../Hooks/useAuth';
+
+const api = axios.create({
+  baseURL: 'https://hobby-hub-server-lemon.vercel.app',
+});
 
 const DashboardOverview = () => {
   const { user } = useAuth();
@@ -9,23 +14,20 @@ const DashboardOverview = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      try {
-        if (!user?.email) return;
+      if (!user?.email) {
+        setLoading(false);
+        return;
+      }
 
-        // Fetch total groups and user-specific groups in parallel
-        const [totalGroupsRes, myGroupsRes] = await Promise.all([
-          fetch('https://hobby-hub-server-lemon.vercel.app/groupInformation'),
-          fetch(
-            `https://hobby-hub-server-lemon.vercel.app/groupInformation/user?email=${user.email}`
-          ),
+      try {
+        const [totalGroupsResponse, myGroupsResponse] = await Promise.all([
+          api.get('/groupInformation'),
+          api.get(`/groupInformation/user?email=${user.email}`),
         ]);
 
-        const totalGroupsData = await totalGroupsRes.json();
-        const myGroupsData = await myGroupsRes.json();
-
         setStats({
-          totalGroups: totalGroupsData.length || 0,
-          myGroups: myGroupsData.length || 0,
+          totalGroups: totalGroupsResponse.data.length || 0,
+          myGroups: myGroupsResponse.data.length || 0,
         });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
