@@ -1,5 +1,8 @@
+// src/Pages/MyGroups.jsx
+
 import React, { useEffect, useState } from 'react';
 import useAuth from '../Hooks/useAuth';
+import axios from 'axios'; // 1. Import axios
 import {
   FaArrowLeft,
   FaEdit,
@@ -10,6 +13,10 @@ import {
 import Swal from 'sweetalert2';
 import { Link } from 'react-router';
 import HomeLoader from '../Components/Custom/HomeLoader';
+
+const api = axios.create({
+  baseURL: 'https://hobby-hub-server-lemon.vercel.app',
+});
 
 const MyGroups = () => {
   const { user } = useAuth();
@@ -22,23 +29,20 @@ const MyGroups = () => {
       const fetchAllMyGroups = async () => {
         setLoading(true);
         try {
-          // Fetch created and joined groups at the same time
-          const [createdRes, joinedRes] = await Promise.all([
-            fetch(
-              `https://hobby-hub-server-lemon.vercel.app/groupInformation/user?email=${user.email}`
-            ),
-            fetch(
-              `https://hobby-hub-server-lemon.vercel.app/groupInformation/joined?email=${user.email}`
-            ),
+          const [createdResponse, joinedResponse] = await Promise.all([
+            api.get(`/groupInformation/user?email=${user.email}`),
+            api.get(`/groupInformation/joined?email=${user.email}`),
           ]);
 
-          const createdData = await createdRes.json();
-          const joinedData = await joinedRes.json();
-
-          setCreatedGroups(createdData);
-          setJoinedGroups(joinedData);
+          setCreatedGroups(createdResponse.data);
+          setJoinedGroups(joinedResponse.data);
         } catch (error) {
           console.error("Failed to fetch user's groups:", error);
+          Swal.fire(
+            'Error!',
+            'Could not fetch your group data. Please try again later.',
+            'error'
+          );
         } finally {
           setLoading(false);
         }
@@ -48,7 +52,6 @@ const MyGroups = () => {
   }, [user]);
 
   const handleDelete = id => {
-    // ... (your existing delete logic is perfect!)
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -57,22 +60,23 @@ const MyGroups = () => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Yes, delete it!',
-    }).then(result => {
+    }).then(async result => {
       if (result.isConfirmed) {
-        fetch(
-          `https://hobby-hub-server-lemon.vercel.app/groupInformation/${id}`,
-          { method: 'DELETE' }
-        )
-          .then(res => res.json())
-          .then(data => {
-            if (data.deletedCount > 0) {
-              Swal.fire('Deleted!', 'Your group has been deleted.', 'success');
-              const remainingGroups = createdGroups.filter(
-                group => group._id !== id
-              );
-              setCreatedGroups(remainingGroups);
-            }
-          });
+        try {
+          const response = await api.delete(`/groupInformation/${id}`);
+          if (response.data.deletedCount > 0) {
+            Swal.fire('Deleted!', 'Your group has been deleted.', 'success');
+            const remainingGroups = createdGroups.filter(
+              group => group._id !== id
+            );
+            setCreatedGroups(remainingGroups);
+          } else {
+            throw new Error('Deletion failed on the server.');
+          }
+        } catch (error) {
+          console.error('Delete error:', error);
+          Swal.fire('Error!', 'Could not delete the group.', 'error');
+        }
       }
     });
   };
