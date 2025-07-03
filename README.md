@@ -6,7 +6,7 @@
 </div>
 
 🔗 [**Live Site**](https://hobby-hub-1549a.web.app/)
-&nbsp;&nbsp;•&nbsp;&nbsp;
+
 🔗 [**Live API**](https://hobby-hub-server-lemon.vercel.app/)
 
 ---
